@@ -1,0 +1,38 @@
+01 THE PROBLEM
+==============
+
+03. RDBMS
+Given:
+1. SELECT * FROM a, b WHERE a.id=b.a_id;
+2. SELECT * FROM a JOIN b ON a.id=b.a_id;
+
+What you can say about these two queries? Please share your thoughts!
+
+02 EXPLANATION
+==============
+I. The query (1) will take much more time (for large tables) to get the results than the query (2). Why it happens? Let's discover it!
+
+Let M is the count of rows in table a. Let N is the count of rows in table b.
+
+
+II. The query plan for query (1)
+1) RDBMS joins the rows of table a and table b:
+   - It duplicates row 1 of table a N times;
+   - Then RDBMS 'concatenates' N rows 1 with the N rows of    table b;
+   - It repeats the algorithm for every row in table a.
+In the end of process we get MxN rows.
+
+2) RDBMS performs a 'full scan' for both tables a and b. It also puts the result into the RAM.
+
+3) RDBMS filters rows in memory based on the rule a.id = b.id
+
+4) Now we have a set of joined rows as the result of the query (1)
+
+III. The query plan for query (2)
+1) RDBMS joins only thouse rows of table a for which the rule a.id = b.id works. Consequently there are less records in memory (<= max(M,N)).
+
+2) The count of memory records can be even 0 or 1 (it depends on data in tables).
+
+3) Probably there are indexes for primary keys a.id and b.id were created. It means RDBMS reads the index files direcly, not table data ( = 'full scan'! ;-) )
+
+4) We've got the same set of joined records as in query (1).
